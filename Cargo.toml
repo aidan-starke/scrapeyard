@@ -1,0 +1,13 @@
+[package]
+name = "scrapeyard"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+reqwest = { version = "0.11", features = ["blocking"] }
+tokio = { version = "1", features = ["full"] }
+scraper = "0.17.1"
+regex = "1.9.3"
+dbg-pls = { version = "0.4.3", features = ["derive", "pretty"] }
