@@ -55,7 +55,7 @@ pub trait SurfScraper {
 
     fn scrape_links(self, link_matcher: Box<dyn Fn(String) -> Vec<Regex>>) -> Self;
 
-    fn compare_and_write_surfs(self, location: String);
+    fn compare_and_write_surfs(self, location: String) -> Option<Vec<Surf>>;
 }
 
 impl SurfScraper for Surfs {
@@ -105,7 +105,7 @@ impl SurfScraper for Surfs {
         self
     }
 
-    fn compare_and_write_surfs(self, location: String) {
+    fn compare_and_write_surfs(self, location: String) -> Option<Vec<Surf>> {
         let previous =
             fs::read_to_string(format!("{}.json", "data/".to_string() + location.as_str()))
                 .expect(format!("Unable to read file for {}", location).as_str());
@@ -113,8 +113,12 @@ impl SurfScraper for Surfs {
         let previous: Vec<Surf> = serde_json::from_str(&previous)
             .expect(format!("Unable to parse json for {}", location).as_str());
 
-        self.surfs.clone().into_iter().for_each(|surf| {
-            if !previous.contains(&surf) {
+        let new_surfs = self
+            .surfs
+            .clone()
+            .into_iter()
+            .filter(|surf| !previous.contains(&surf))
+            .map(|surf| {
                 println!("New surf at {}, {:#?}", location, surf);
 
                 fs::write(
@@ -122,7 +126,15 @@ impl SurfScraper for Surfs {
                     self.to_json(),
                 )
                 .expect(format!("Unable to write file for {}", location).as_str());
-            }
-        });
+
+                surf
+            })
+            .collect::<Vec<_>>();
+
+        if !new_surfs.is_empty() {
+            Some(new_surfs)
+        } else {
+            None
+        }
     }
 }
