@@ -1,31 +1,40 @@
-#![allow(dead_code)]
 use regex::Regex;
 
-#[derive(Debug, dbg_pls::DebugPls)]
-struct Surf {
-    model: String,
-    count: u32,
-}
+mod types;
+
+use types::*;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let response = reqwest::blocking::get("https://www.pickapart.co.nz/Takanini-Stock");
+    let pickapart = Surfs {
+        page_link: "https://www.pickapart.co.nz/Takanini-Stock".to_string(),
+        surf_link: "https://www.pickapart.co.nz/eziparts/".to_string(),
+        surfs: vec![],
+    };
 
-    let html_content = response.unwrap().text().unwrap();
+    let link_matcher = Box::new(|model: String| {
+        vec![
+            Regex::new(format!(r"href='.*\/eziparts\/(Display_Vehicle.*{})'", model).as_str())
+                .unwrap(),
+            Regex::new(
+                format!(r"href='.*\/eziparts\/(Display_Vehicle.*{} \d+-\d+)'", model).as_str(),
+            )
+            .unwrap(),
+            Regex::new(
+                format!(
+                    r"href='.*\/eziparts\/(Display_Vehicle.*{} \d{{2}}\/\d{{2}}-\d{{2}}\/\d{{2}})'",
+                    model
+                )
+                .as_str(),
+            )
+            .unwrap(),
+        ]
+    });
 
-    // TODO: actually find surf
-    let has_surf = Regex::new(r"Voltz (\w+) \((\d+)\)").unwrap();
+    let pickapart_surfs = pickapart
+        .scrape_page(Regex::new(r"Corolla (\w+).*? \((\d+)\)").unwrap(), true)
+        .scrape_links(link_matcher);
 
-    let mut results = vec![];
-    for (_, [model, count]) in has_surf.captures_iter(&html_content).map(|c| c.extract()) {
-        results.push(Surf {
-            model: model.to_string(),
-            count: count.parse().unwrap(),
-        });
-    }
-
-    println!("{:#?}", dbg_pls::pretty(&results));
-
-    // TODO: Get link to surf
+    println!("{:#?}", dbg_pls::pretty(&pickapart_surfs));
 
     Ok(())
 }
