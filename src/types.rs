@@ -1,13 +1,13 @@
 use regex::Regex;
 
-#[derive(Debug, Clone, dbg_pls::DebugPls)]
+#[derive(Clone, Debug)]
 pub struct Surf {
     pub model: String,
     pub count: Option<u32>,
     pub links: Vec<String>,
 }
 
-#[derive(dbg_pls::DebugPls)]
+#[derive(Clone, Debug)]
 pub struct Surfs {
     pub page_link: String,
     pub surf_link: String,
