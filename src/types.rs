@@ -61,11 +61,8 @@ impl SurfScraper for Surfs {
     fn scrape_page(mut self, has_surf: Regex) -> Self {
         self.surfs = has_surf
             .captures_iter(&self.page_string)
-            .map(|c| {
-                let (_, [model, count]) = c.extract();
-
-                Surf::new(model.to_string(), count.parse::<u32>().unwrap())
-            })
+            .map(|c| c.extract().1)
+            .map(|[model, count]| Surf::new(model.to_string(), count.parse::<u32>().unwrap()))
             .collect();
 
         self
@@ -76,19 +73,23 @@ impl SurfScraper for Surfs {
             .surfs
             .clone()
             .into_iter()
-            .map(|surf| {
-                let mut links = vec![];
+            .map(|mut surf| {
+                surf.links = link_matcher(surf.model.clone()).into_iter().fold(
+                    vec![],
+                    |mut acc, matcher| {
+                        let mut links = matcher
+                            .captures_iter(&self.page_string)
+                            .map(|c| c.extract().1)
+                            .map(|[link]| self.format_link(link.to_string()))
+                            .collect::<Vec<String>>();
 
-                for matcher in link_matcher(surf.model.clone()) {
-                    matcher
-                        .captures_iter(&self.page_string)
-                        .map(|c| c.extract())
-                        .for_each(|(_, [link])| {
-                            links.push(self.format_link(link.to_string()));
-                        });
-                }
+                        acc.append(&mut links);
 
-                Surf { links, ..surf }
+                        acc
+                    },
+                );
+
+                surf
             })
             .collect();
 

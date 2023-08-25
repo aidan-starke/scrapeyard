@@ -5,11 +5,6 @@ mod types;
 use types::*;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let takanini = Surfs::new(
-        "https://www.pickapart.co.nz/Takanini-Stock".to_string(),
-        "https://www.pickapart.co.nz/eziparts/".to_string(),
-    );
-
     let surf_matcher = Regex::new(r"Corolla (\w+).*? \((\d+)\)").unwrap();
 
     let link_matcher = Box::new(|model: String| {
@@ -31,22 +26,21 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         ]
     });
 
-    println!("Takanini");
-    takanini
-        .scrape_page(surf_matcher.clone())
-        .scrape_links(link_matcher.clone())
-        .print();
+    vec!["Avondale", "Takanini"]
+        .into_iter()
+        .for_each(|location| {
+            println!("{}", location);
 
-    let avondale = Surfs::new(
-        "https://www.pickapart.co.nz/Avondale-Stock".to_string(),
-        "https://www.pickapart.co.nz/eziparts/".to_string(),
-    );
+            let scraper = Surfs::new(
+                format!("https://www.pickapart.co.nz/{}-Stock", location),
+                "https://www.pickapart.co.nz/eziparts/".to_string(),
+            );
 
-    println!("Avondale");
-    avondale
-        .scrape_page(surf_matcher)
-        .scrape_links(link_matcher)
-        .print();
+            scraper
+                .scrape_page(surf_matcher.clone())
+                .scrape_links(link_matcher.clone())
+                .print();
+        });
 
     Ok(())
 }
