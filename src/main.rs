@@ -5,11 +5,12 @@ mod types;
 use types::*;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let takanini = Surfs {
-        page_link: "https://www.pickapart.co.nz/Takanini-Stock".to_string(),
-        surf_link: "https://www.pickapart.co.nz/eziparts/".to_string(),
-        surfs: vec![],
-    };
+    let takanini = Surfs::new(
+        "https://www.pickapart.co.nz/Takanini-Stock".to_string(),
+        "https://www.pickapart.co.nz/eziparts/".to_string(),
+    );
+
+    let surf_matcher = Regex::new(r"Corolla (\w+).*? \((\d+)\)").unwrap();
 
     let link_matcher = Box::new(|model: String| {
         vec![
@@ -30,24 +31,22 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         ]
     });
 
-    let takanini_surfs = takanini
-        .clone()
-        .scrape_page(Regex::new(r"Corolla (\w+).*? \((\d+)\)").unwrap(), true)
-        .scrape_links(link_matcher.clone());
+    println!("Takanini");
+    takanini
+        .scrape_page(surf_matcher.clone())
+        .scrape_links(link_matcher.clone())
+        .print();
 
-    println!("{:#?}", &takanini_surfs);
+    let avondale = Surfs::new(
+        "https://www.pickapart.co.nz/Avondale-Stock".to_string(),
+        "https://www.pickapart.co.nz/eziparts/".to_string(),
+    );
 
-    let avondale = Surfs {
-        page_link: "https://www.pickapart.co.nz/Avondale-Stock".to_string(),
-        ..takanini
-    };
-
-    let avondale_surfs = avondale
-        .clone()
-        .scrape_page(Regex::new(r"Corolla (\w+).*? \((\d+)\)").unwrap(), true)
-        .scrape_links(link_matcher);
-
-    println!("{:#?}", &avondale_surfs);
+    println!("Avondale");
+    avondale
+        .scrape_page(surf_matcher)
+        .scrape_links(link_matcher)
+        .print();
 
     Ok(())
 }
