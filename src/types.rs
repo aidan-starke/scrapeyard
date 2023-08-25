@@ -1,6 +1,7 @@
 use regex::Regex;
+use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Surf {
     pub model: String,
     pub count: u32,
@@ -38,6 +39,10 @@ impl Surfs {
 
     pub fn print(&self) {
         println!("{:#?}", self.surfs);
+    }
+
+    pub fn to_json(&self) -> String {
+        serde_json::to_string(&self.surfs).unwrap()
     }
 }
 

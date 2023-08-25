@@ -1,4 +1,5 @@
 use regex::Regex;
+use std::fs;
 
 mod types;
 
@@ -36,10 +37,17 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 "https://www.pickapart.co.nz/eziparts/".to_string(),
             );
 
-            scraper
+            let surfs = scraper
                 .scrape_page(surf_matcher.clone())
-                .scrape_links(link_matcher.clone())
-                .print();
+                .scrape_links(link_matcher.clone());
+
+            surfs.print();
+
+            fs::write(
+                format!("{}.json", "data/".to_string() + location),
+                surfs.to_json(),
+            )
+            .expect("Unable to write file");
         });
 
     Ok(())
