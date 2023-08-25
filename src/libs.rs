@@ -13,7 +13,7 @@ use lettre::{
 use std::collections::HashMap;
 use std::error::Error;
 
-pub fn scrape_surfs() -> Option<HashMap<String, Vec<Surf>>> {
+pub fn scrape_surfs(pages: HashMap<String, String>) -> Option<HashMap<String, Vec<Surf>>> {
     let surf_matcher = Regex::new(r"Surf (\w+).*? \((\d+)\)").unwrap();
 
     let link_matcher = Box::new(|model: String| {
@@ -37,24 +37,21 @@ pub fn scrape_surfs() -> Option<HashMap<String, Vec<Surf>>> {
 
     let mut new_surfs = HashMap::new();
 
-    vec!["Avondale", "Takanini"]
-        .into_iter()
-        .for_each(|location| {
-            println!("{}", location);
+    pages.into_iter().for_each(|(location, page_string)| {
+        let scraper = Surfs {
+            page_string,
+            surfs: vec![],
+            surf_link: "https://www.pickapart.co.nz/eziparts/".to_string(),
+        };
 
-            let scraper = Surfs::new(
-                format!("https://www.pickapart.co.nz/{}-Stock", location),
-                "https://www.pickapart.co.nz/eziparts/".to_string(),
-            );
+        let surfs = scraper
+            .scrape_page(surf_matcher.clone())
+            .scrape_links(link_matcher.clone());
 
-            let surfs = scraper
-                .scrape_page(surf_matcher.clone())
-                .scrape_links(link_matcher.clone());
-
-            if let Some(surfs) = surfs.compare_and_write_surfs(location.to_string()) {
-                new_surfs.insert(location.to_string(), surfs);
-            }
-        });
+        if let Some(surfs) = surfs.compare_and_write_surfs(location.to_string()) {
+            new_surfs.insert(location.to_string(), surfs);
+        }
+    });
 
     if new_surfs.is_empty() {
         None
