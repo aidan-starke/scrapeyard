@@ -1,5 +1,4 @@
 use regex::Regex;
-use std::fs;
 
 mod types;
 
@@ -41,13 +40,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .scrape_page(surf_matcher.clone())
                 .scrape_links(link_matcher.clone());
 
-            surfs.print();
-
-            fs::write(
-                format!("{}.json", "data/".to_string() + location),
-                surfs.to_json(),
-            )
-            .expect("Unable to write file");
+            surfs.compare_and_write_surfs(location.to_string());
         });
 
     Ok(())

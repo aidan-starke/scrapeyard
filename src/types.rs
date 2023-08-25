@@ -1,7 +1,8 @@
 use regex::Regex;
 use serde::{Deserialize, Serialize};
+use std::fs;
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 pub struct Surf {
     pub model: String,
     pub count: u32,
@@ -18,7 +19,7 @@ impl Surf {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Surfs {
     pub page_string: String,
     pub surf_link: String,
@@ -37,6 +38,7 @@ impl Surfs {
         }
     }
 
+    #[allow(dead_code)]
     pub fn print(&self) {
         println!("{:#?}", self.surfs);
     }
@@ -52,6 +54,8 @@ pub trait SurfScraper {
     fn scrape_page(self, has_surf: Regex) -> Self;
 
     fn scrape_links(self, link_matcher: Box<dyn Fn(String) -> Vec<Regex>>) -> Self;
+
+    fn compare_and_write_surfs(self, location: String);
 }
 
 impl SurfScraper for Surfs {
@@ -99,5 +103,26 @@ impl SurfScraper for Surfs {
             .collect();
 
         self
+    }
+
+    fn compare_and_write_surfs(self, location: String) {
+        let previous =
+            fs::read_to_string(format!("{}.json", "data/".to_string() + location.as_str()))
+                .expect(format!("Unable to read file for {}", location).as_str());
+
+        let previous: Vec<Surf> = serde_json::from_str(&previous)
+            .expect(format!("Unable to parse json for {}", location).as_str());
+
+        self.surfs.clone().into_iter().for_each(|surf| {
+            if !previous.contains(&surf) {
+                println!("New surf at {}, {:#?}", location, surf);
+
+                fs::write(
+                    format!("{}.json", "data/".to_string() + &location),
+                    self.to_json(),
+                )
+                .expect(format!("Unable to write file for {}", location).as_str());
+            }
+        });
     }
 }
