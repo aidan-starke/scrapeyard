@@ -90,7 +90,7 @@ impl SurfScraper for Surfs {
                             .captures_iter(&self.page_string)
                             .map(|c| c.extract().1)
                             .map(|[link]| self.format_link(link.to_string()))
-                            .collect::<Vec<String>>();
+                            .collect::<Vec<_>>();
 
                         acc.append(&mut links);
 

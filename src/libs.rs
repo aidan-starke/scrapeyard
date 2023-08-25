@@ -6,14 +6,15 @@ use html_node::typed::{
     elements::{a, b, body, div, h1, h2, html, li, p, ul},
     html,
 };
-use lettre::message::header::ContentType;
-use lettre::transport::smtp::authentication::Credentials;
-use lettre::{Message, SmtpTransport, Transport};
+use lettre::{
+    message::header::ContentType, transport::smtp::authentication::Credentials, Message,
+    SmtpTransport, Transport,
+};
 use std::collections::HashMap;
 use std::error::Error;
 
 pub fn scrape_surfs() -> Option<HashMap<String, Vec<Surf>>> {
-    let surf_matcher = Regex::new(r"Corolla (\w+).*? \((\d+)\)").unwrap();
+    let surf_matcher = Regex::new(r"Surf (\w+).*? \((\d+)\)").unwrap();
 
     let link_matcher = Box::new(|model: String| {
         vec![
