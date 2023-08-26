@@ -10,8 +10,15 @@ use lettre::{
     message::header::ContentType, transport::smtp::authentication::Credentials, Message,
     SmtpTransport, Transport,
 };
-use std::collections::HashMap;
-use std::error::Error;
+use std::{collections::HashMap, error::Error, fs};
+
+pub fn read_surfs(location: String) -> Result<Vec<Surf>, Box<dyn Error>> {
+    let previous = fs::read_to_string(format!("{}.json", "data/".to_string() + location.as_str()))
+        .map_err(|_| ReadWriteError::Read(location.clone()))?;
+
+    Ok(serde_json::from_str::<Vec<Surf>>(&previous)
+        .map_err(|_| ReadWriteError::JsonParse(location))?)
+}
 
 pub fn scrape_surfs(pages: HashMap<String, String>) -> Option<HashMap<String, Vec<Surf>>> {
     let surf_matcher = Regex::new(r"Surf (\w+).*? \((\d+)\)").unwrap();

@@ -1,5 +1,5 @@
 [package]
-name = "scrapeyard"
+name = "scrape"
 version = "1.0.0"
 edition = "2021"
 

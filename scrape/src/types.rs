@@ -1,6 +1,36 @@
+use crate::libs::*;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
-use std::fs;
+use std::{
+    error::Error,
+    fmt::{Display, Formatter},
+    fs,
+};
+
+#[derive(Debug)]
+pub enum ReadWriteError {
+    Read(String),
+    Write(String),
+    JsonParse(String),
+    JsonSerialize(String),
+}
+
+impl Display for ReadWriteError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        match self {
+            ReadWriteError::JsonParse(location) => {
+                write!(f, "Unable to parse json for {}", location)
+            }
+            ReadWriteError::JsonSerialize(location) => {
+                write!(f, "Unable to serialize json for {}", location)
+            }
+            ReadWriteError::Read(location) => write!(f, "Unable to read file for {}", location),
+            ReadWriteError::Write(location) => write!(f, "Unable to write file for {}", location),
+        }
+    }
+}
+
+impl Error for ReadWriteError {}
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 pub struct Surf {
@@ -43,8 +73,8 @@ impl Surfs {
         println!("{:#?}", self.surfs);
     }
 
-    pub fn to_json(&self) -> String {
-        serde_json::to_string(&self.surfs).unwrap()
+    pub fn to_json(&self) -> Result<String, serde_json::Error> {
+        serde_json::to_string(&self.surfs)
     }
 }
 
@@ -106,26 +136,31 @@ impl SurfScraper for Surfs {
     }
 
     fn compare_and_write_surfs(self, location: String) -> Option<Vec<Surf>> {
-        let previous =
-            fs::read_to_string(format!("{}.json", "data/".to_string() + location.as_str()))
-                .expect(format!("Unable to read file for {}", location).as_str());
+        let previous = read_surfs(location.clone());
 
-        let previous: Vec<Surf> = serde_json::from_str(&previous)
-            .expect(format!("Unable to parse json for {}", location).as_str());
+        let previous = if let Err(err) = previous {
+            panic!("{}", err);
+        } else {
+            previous.unwrap()
+        };
 
         let new_surfs = self
             .surfs
             .clone()
             .into_iter()
-            .filter(|surf| !previous.contains(&surf))
+            .filter(|surf| !previous.contains(surf))
             .map(|surf| {
                 println!("New surf at {}, {:#?}", location, surf);
 
                 fs::write(
                     format!("{}.json", "data/".to_string() + &location),
-                    self.to_json(),
+                    self.to_json().expect(
+                        ReadWriteError::JsonSerialize(location.clone())
+                            .to_string()
+                            .as_str(),
+                    ),
                 )
-                .expect(format!("Unable to write file for {}", location).as_str());
+                .expect(ReadWriteError::Write(location.clone()).to_string().as_str());
 
                 surf
             })
