@@ -57,17 +57,6 @@ pub struct Surfs {
 }
 
 impl Surfs {
-    pub fn new(page_link: String, surf_link: String) -> Self {
-        let response = reqwest::blocking::get(page_link);
-        let page_string = response.unwrap().text().unwrap();
-
-        Self {
-            surf_link,
-            page_string,
-            surfs: Vec::new(),
-        }
-    }
-
     #[allow(dead_code)]
     pub fn print(&self) {
         println!("{:#?}", self.surfs);

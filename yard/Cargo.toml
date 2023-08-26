@@ -4,4 +4,5 @@ version = "1.0.0"
 edition = "2021"
 
 [dependencies]
+libs = { path = "../libs"}
 yew = { version = "0.20.0", features = ["csr"] }
