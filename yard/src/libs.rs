@@ -4,6 +4,7 @@ use std::{
     fmt::{Display, Formatter},
     fs,
 };
+use yew::Properties;
 
 #[derive(Debug)]
 pub enum ReadWriteError {
@@ -32,7 +33,7 @@ impl Display for ReadWriteError {
 
 impl Error for ReadWriteError {}
 
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Properties)]
 pub struct Surf {
     pub model: String,
     pub count: u32,
