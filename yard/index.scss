@@ -1,26 +1,68 @@
-button {
-  background-color: #008f53; /* Green */
-  border: 0;
+html {
   color: white;
-  padding: 14px 14px;
-  text-align: center;
-  font-size: 16px;
-  margin: 2px 2px;
-  width: 100px;
+  background-color: #1c1c1c;
+  font-family: "Montserrat", sans-serif;
 }
 
-.counter {
-  color: #008f53;
-  font-size: 48px;
-  text-align: center;
+p {
+  padding: 0 10px;
 }
 
-.footer {
-  text-align: center;
-  font-size: 12px;
+ul {
+  margin-left: -20px;
+  list-style-type: circle;
 }
 
-.panel {
+li {
+  padding: 5px;
+}
+
+a {
+  color: #fca311;
+  text-decoration: none;
+}
+
+a:hover {
+  color: #ffd60a;
+  text-decoration: underline;
+}
+
+.location {
+  color: #00b4d8;
+  font-size: 40px;
+  text-align: center;
+  display: block;
+}
+
+.wrapper {
   display: flex;
+  padding: 10px;
   justify-content: center;
+}
+
+.card {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+
+  width: 40%;
+  margin: 0 50px;
+  padding: 10px 20px;
+
+  border-radius: 15px;
+  border: 2px solid #495057;
+
+  border-left: unset;
+  border-right: unset;
+}
+
+.surf {
+  margin: 10px 10px;
+  text-align: center;
+}
+
+.sad-life {
+  color: #fca311;
+  font-size: 40px;
+  text-align: center;
 }

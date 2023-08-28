@@ -13,27 +13,39 @@ fn Content() -> HtmlResult {
         .map(|location| read_surfs(location.to_string()).unwrap())
         .collect::<Vec<_>>();
 
+    if surfs.iter().any(|surfs| surfs.is_empty()) {
+        return Ok(html! {
+            <main>
+                <h1 class="sad-life">{"No surfs found :("}</h1>
+            </main>
+        });
+    }
+
     Ok(html! {
-        <div>
+        <main>
             {LOCATIONS.iter().enumerate().map(|(i, location)| html! {
                 <section>
-                    <h1>{location}</h1>
+                    <h1 class="location">{location}</h1>
 
-                    {surfs[i].clone().iter().map(|surf| html! {
-                        <SurfComponent ..surf.clone() />
-                    }).collect::<Html>()}
+                    <div class="wrapper">
+                        <section class="card">
+                            {surfs[i].clone().iter().map(|surf| html! {
+                                <SurfComponent ..surf.clone() />
+                            }).collect::<Html>()}
+                        </section>
+                    </div>
                 </section>
             }).collect::<Html>()}
-        </div>
+        </main>
     })
 }
 
 #[function_component]
 fn SurfComponent(props: &Surf) -> Html {
     html! {
-        <div>
+        <div class="surf">
             <h2>{&props.model}</h2>
-            <p>{"In stock - "}{&props.count}</p>
+            <p>{&props.count}{" in stock"}</p>
             <ul>
                 {props.links.iter().enumerate().map(|(i, link)| html! {
                     <li><a href={link.clone()}>{"Link "} {i + 1}</a></li>
