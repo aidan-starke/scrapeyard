@@ -2,11 +2,13 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>Yew • Counter</title>
+    <title>Yew SSR Example</title>
 
-    <link data-trunk rel="rust" />
-    <link data-trunk rel="sass" href="index.scss" />
+    <link
+      data-trunk
+      rel="rust"
+      data-bin="hydrate"
+      data-cargo-features="hydration"
+    />
   </head>
-
-  <body></body>
 </html>
