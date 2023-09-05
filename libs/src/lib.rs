@@ -27,7 +27,7 @@ pub mod libs {
     }
 
     pub fn scrape_surfs(pages: HashMap<String, String>) -> Option<HashMap<String, Vec<Surf>>> {
-        let surf_matcher = Regex::new(r"Corolla (\w+).*? \((\d+)\)").unwrap();
+        let surf_matcher = Regex::new(r"Surf (\w+).*? \((\d+)\)").unwrap();
 
         let link_matcher = Box::new(|model: String| {
             vec![
